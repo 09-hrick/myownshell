@@ -1,41 +1,55 @@
 #include <iostream>
+#include <string>
+enum commands
+{
+  type,
+  echo,
+  cd,
+  quit,
+  invalid
+};
+commands string_to_command(std::string str)
+{
+  if (str.find("type") != std::string::npos)
+    return type;
+  if (str.find("echo") != std::string::npos)
+    return echo;
+  if (str.find("cd") != std::string::npos)
+    return cd;
+  if (str.find("exit") != std::string::npos)
+    return quit;
 
+  return invalid;
+}
 int main()
 {
   // Flush after every std::cout / std:cerr
-  std::string input;
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
-  std::string builtin[3] = {"echo", "exit", "type"};
-  std::cout << "$ ";
-  while (std::getline(std::cin, input) && input != "exit 0")
+
+  std::string input = " ";
+  while (!input.empty())
   {
-    if (input.find("echo") == 0)
-    {
-      std::cout << input.substr(5, input.size()) << std::endl;
-    }
-    else if (input.find("type") == 0)
-    {
-      std::string cmd = input.substr(5, input.size());
-      bool chkvalid = 0;
-      for (std::string &builtins : builtin)
-      {
-        if (cmd.substr(0, 5) == builtins)
-        {
-          std::cout << cmd << " is a shell builtin\n";
-          chkvalid = 1;
-        }
-      }
-      if (!chkvalid)
-      {
-        std::cout << cmd << ": not found\n";
-      }
-    }
-    else
-    {
-      std::cout << input << ": command not found\n";
-    }
     std::cout << "$ ";
+    std::getline(std::cin, input);
+
+    switch (string_to_command(input))
+    {
+    case echo:
+      std::cout << input.substr(5) << '\n';
+      break;
+    case type:
+      if (string_to_command(input.substr(5)) != invalid)
+        std::cout << input.substr(5) << " is a shell builtin" << '\n';
+      else
+        std::cout << input.substr(5) << " not found" << '\n';
+      break;
+    case quit:
+      return 0;
+    default:
+      std::cout << input << ": command not found" << '\n';
+      break;
+    }
   }
   return 0;
 }
