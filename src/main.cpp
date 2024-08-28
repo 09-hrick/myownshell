@@ -6,21 +6,18 @@ int main()
   std::string input;
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
-  while (true)
+  std::cout << "$ ";
+  while (std::getline(std::cin, input) && input != "exit 0")
   {
-
-    // Uncomment this block to pass the first stage
-    std::cout << "$ ";
-
-    std::getline(std::cin, input);
-    if (input == "exit 0")
+    if (input.find("echo") == 0)
     {
-      return 0;
+      std::cout << input.substr(5, input.size()) << std::endl;
     }
-    else if(input.substr(4)=="echo"){
-      std::cout << input.substr(4,input.size())<<std::endl;  
-    }else{
+    else
+    {
       std::cout << input << ": command not found\n";
     }
+    std::cout << "$ ";
   }
+  return 0;
 }
