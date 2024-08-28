@@ -28,7 +28,7 @@ int main()
       }
       if (!chkvalid)
       {
-        std::cout << input << std::endl;
+        std::cout << cmd << ": not found\n";
       }
     }
     else
