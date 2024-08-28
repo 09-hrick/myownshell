@@ -6,7 +6,7 @@ int main()
   std::string input;
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
-  while (input != "exit 0")
+  while (true)
   {
 
     // Uncomment this block to pass the first stage
@@ -14,6 +14,9 @@ int main()
 
     std::getline(std::cin, input);
     std::cout << input << ": command not found\n";
+    if (input == "exit 0")
+    {
+      return 0;
+    }
   }
-  return 0;
 }
