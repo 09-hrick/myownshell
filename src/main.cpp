@@ -1,55 +1,78 @@
 #include <iostream>
 #include <string>
-enum commands
+#include <sstream>
+#include <filesystem>
+using namespace std;
+enum validCommands
 {
-  type,
-  echo,
-  cd,
-  quit,
-  invalid
+    echo,
+    cd,
+    exit0,
+    type,
+    invalid,
 };
-commands string_to_command(std::string str)
-{
-  if (str.find("type") != std::string::npos)
-    return type;
-  if (str.find("echo") != std::string::npos)
-    return echo;
-  if (str.find("cd") != std::string::npos)
-    return cd;
-  if (str.find("exit") != std::string::npos)
-    return quit;
-
-  return invalid;
+validCommands isValid(std::string command){
+    command = command.substr(0,command.find(" "));
+    if(command == "echo") return validCommands::echo;
+    if(command == "cd") return validCommands::cd;
+    if(command == "exit") return validCommands::exit0;
+    if(command == "type") return validCommands::type;
+    return invalid;
 }
-int main()
-{
-  // Flush after every std::cout / std:cerr
-  std::cout << std::unitbuf;
-  std::cerr << std::unitbuf;
-
-  std::string input = " ";
-  while (!input.empty())
-  {
-    std::cout << "$ ";
-    std::getline(std::cin, input);
-
-    switch (string_to_command(input))
-    {
-    case echo:
-      std::cout << input.substr(5) << '\n';
-      break;
-    case type:
-      if (string_to_command(input.substr(5)) != invalid)
-        std::cout << input.substr(5) << " is a shell builtin" << '\n';
-      else
-        std::cout << input.substr(5) << " not found" << '\n';
-      break;
-    case quit:
-      return 0;
-    default:
-      std::cout << input << ": command not found" << '\n';
-      break;
+std::string valid[4] = {"echo", "cd", "exit0"};
+std::string get_path(std::string command){
+    std::string path_env = std::getenv("PATH");
+    std::stringstream ss(path_env);
+    std::string path;
+    while(!ss.eof()){
+        getline(ss, path, ':');
+        string abs_path = path + '/' + command;
+        if(filesystem::exists(abs_path)){
+            return abs_path;
+        }
     }
-  }
-  return 0;
+    return "";  
+}
+int main() {
+    // You can use print statements as follows for debugging, they'll be visible when running tests.
+    // std::cout << "Logs from your program will appear here!\n";
+    bool exit = false;
+    while (!exit){
+        // Flush after every std::cout / std:cerr
+        std::cout << std::unitbuf;
+        std::cerr << std::unitbuf;
+        std::cout << "$ ";
+        std::string input;
+        std::getline(std::cin, input);
+        switch(isValid(input)){
+            case cd:
+                break;
+            case echo:
+                input.erase(0,input.find(" ")+1);
+                std::cout<<input<<"\n";
+                break;
+            case exit0:
+                exit=true;
+                break;
+            case type:
+                input.erase(0,input.find(" ")+1);
+                if(isValid(input) != invalid){
+                    std::cout<<input<<" is a shell builtin\n";
+                }
+                else{
+                    std::cout<<input<<" not found\n";
+                    std::string path = get_path(input);
+                    if(path.empty()){
+                        std::cout<<input<<" not found\n";
+                    }
+                    else{
+                        std::cout<<input<<" is "<<path<<std::endl;
+                    }
+                }
+                break;
+            default:
+                std::cout<<input<<": command not found\n";
+                break;
+        }
+    }
 }
